@@ -1,5 +1,6 @@
 from bottle import route, run
 import browseGitHub
+import os
 
 apps = browseGitHub.fetch()
 
@@ -14,4 +15,4 @@ def getApp(app = ""):
 	else:
 		return {'error':'App does not exists'}
 
-run(host='localhost', port=8080, debug=True)
+run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
