@@ -2,14 +2,16 @@ from bottle import route, run
 import browseGitHub
 import os
 
-apps = browseGitHub.fetch()
+connection = browseGitHub.GitHubConnector()
+
 
 @route('/')
 def getAllApps():
-	return apps
+	return connection.getAppsJSON()
 
 @route('/app/<app>' , method='GET')
 def getApp(app = ""):
+	apps = connection.getAppsJSON()
 	if app in apps['apps']:
 		return apps['apps'][app]
 	else:
