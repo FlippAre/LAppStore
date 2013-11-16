@@ -15,8 +15,7 @@ class GitHubConnector:
 	def getAppsJSON(self):
 		repo = requests.get("https://api.github.com/repos/lundalogik/limebootstrap",auth=(self.github_user, self.github_password))
 		repo_json = json.loads(repo.text)
-		
-		print dateutil.parser.parse(repo_json["updated_at"])
+
 		if self.last_update < dateutil.parser.parse(repo_json["updated_at"]):
 			
 			self.last_update = dateutil.parser.parse(repo_json["updated_at"])
