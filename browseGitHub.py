@@ -1,14 +1,14 @@
 import requests
 import json
 import os
-import dateutil.parser
+import arrow
 
 class GitHubConnector:
 
 	def __init__(self):
 		self.github_user = os.environ["GITHUB_USER"]
 		self.github_password = os.environ["GITHUB_PASSWORD"]
-		self.last_update = dateutil.parser.parse("1970-01-01T00:00:01Z")
+		self.last_update = arrow.get( "1970-01-01T00:00:01Z" )
 		self.cached_return_json = {}
 
 
@@ -16,9 +16,9 @@ class GitHubConnector:
 		repo = requests.get("https://api.github.com/repos/lundalogik/limebootstrap",auth=(self.github_user, self.github_password))
 		repo_json = json.loads(repo.text)
 
-		if self.last_update < dateutil.parser.parse(repo_json["updated_at"]):
+		if self.last_update < arrow.get(repo_json["updated_at"]):
 			
-			self.last_update = dateutil.parser.parse(repo_json["updated_at"])
+			self.last_update = arrow.get(repo_json["updated_at"])
 			return_json = {}
 			return_json["apps"] = []
 			appDir = requests.get("https://api.github.com/repos/lundalogik/limebootstrap/contents/apps",auth=(self.github_user, self.github_password))
