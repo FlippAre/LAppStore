@@ -3,7 +3,7 @@ import browseGitHub
 import os
 
 connection = browseGitHub.GitHubConnector()
-
+connection.getAppsJSON()
 
 @route('/')
 def getAllApps():
@@ -16,5 +16,11 @@ def getApp(app = ""):
 		return apps['apps'][app]
 	else:
 		return {'error':'App does not exists'}
+
+@route('/refresh', method='POST')
+def refreshApps():
+	connection.getAppsJSON(True)
+	return {"status":"refresh successfull!"}
+
 
 run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

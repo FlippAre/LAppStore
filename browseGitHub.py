@@ -11,16 +11,16 @@ class GitHubConnector:
 		self.last_update = arrow.get( "1970-01-01T00:00:01Z" )
 		self.cached_return_json = {}
 
-
-	def getAppsJSON(self):
+	def getAppsJSON(self, forceRefresh = False):
 		repo = requests.get("https://api.github.com/repos/lundalogik/limebootstrap",auth=(self.github_user, self.github_password))
 		repo_json = json.loads(repo.text)
-
-		if self.last_update < arrow.get(repo_json["updated_at"]):
-			
+		#Should new data be loaded or cache returned?
+		if self.last_update < arrow.get(repo_json["updated_at"]) or forceRefresh:
 			self.last_update = arrow.get(repo_json["updated_at"])
 			return_json = {}
 			return_json["apps"] = []
+
+			#Find all apps
 			appDir = requests.get("https://api.github.com/repos/lundalogik/limebootstrap/contents/apps",auth=(self.github_user, self.github_password))
 			if appDir.ok:
 				appDir_json = json.loads(appDir.text)
@@ -28,17 +28,23 @@ class GitHubConnector:
 				for i, item in enumerate(appDir_json):
 					if appDir_json[i]["type"] == "dir":
 						appname = appDir_json[i]["name"]
-					
 						return_json["apps"].append({})
 						return_json["apps"][j].update({"name":appname})
-						#Load README
+
+						#Load README for a app
 						readme = requests.get("https://api.github.com/repos/lundalogik/limebootstrap/contents/apps/"+appname+"/"+"README.md?ref=master",auth=(self.github_user, self.github_password))
 						if readme.ok:
 							json_readme = json.loads(readme.text)
-							#print json_readme
 							return_json["apps"][j].update( {"readme":json_readme["content"]})
 							j += 1
-						#Load app.json
+						info = requests.get("https://api.github.com/repos/lundalogik/limebootstrap/contents/apps/"+appname+"/"+"app.json?ref=master",auth=(self.github_user, self.github_password))
+						#Load app.json for a app
+						if info.ok:
+							json_info = json.loads(info.text)
+							return_json["apps"][j].update( {"info":json_info ["content"]})
+						if readme.ok or info.ok:
+							j += 1
+			#setup cache for faster responses
 			self.cached_return_json = return_json
 			return return_json
 		else:
