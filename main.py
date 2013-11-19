@@ -2,8 +2,14 @@ from bottle import route, run
 import browseGitHub
 import os
 
+print("Starting LappStore!")
+
 connection = browseGitHub.GitHubConnector()
+
+print("Loading data from GitHub...")
 connection.getAppsJSON()
+
+print("Server is ready!")
 
 @route('/')
 def getAllApps():

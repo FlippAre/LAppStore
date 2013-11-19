@@ -16,7 +16,9 @@ class GitHubConnector:
 		repo = requests.get("https://api.github.com/repos/lundalogik/limebootstrap",auth=(self.github_user, self.github_password))
 		repo_json = json.loads(repo.text)
 		#Should new data be loaded or cache returned?
+
 		if self.last_update < arrow.get(repo_json["updated_at"]) or forceRefresh:
+			print("Fetching new data from GitHub")
 			self.last_update = arrow.get(repo_json["updated_at"])
 			return_json = {}
 			return_json["apps"] = []
@@ -27,6 +29,7 @@ class GitHubConnector:
 				appDir_json = json.loads(appDir.text)
 				j = 0
 				for i, item in enumerate(appDir_json):
+					#Check if it is an app, i.e a directory
 					if appDir_json[i]["type"] == "dir":
 						appname = appDir_json[i]["name"]
 						return_json["apps"].append({})
@@ -37,18 +40,20 @@ class GitHubConnector:
 						if readme.ok:
 							json_readme = json.loads(readme.text)
 							return_json["apps"][j].update( {"readme":json_readme["content"]})
-						info = requests.get("https://api.github.com/repos/lundalogik/limebootstrap/contents/apps/"+appname+"/"+"app.json?ref=master",auth=(self.github_user, self.github_password), headers={"Accept":"application/vnd.github.VERSION.raw"})
+
 						#Load app.json for a app
+						info = requests.get("https://api.github.com/repos/lundalogik/limebootstrap/contents/apps/"+appname+"/"+"app.json?ref=master",auth=(self.github_user, self.github_password), headers={"Accept":"application/vnd.github.VERSION.raw"})
 						if info.ok:
 							json_info = json.loads(info.text)
-							print(json_info)
-							#string = (base64.urlsafe_b64decode(json_info ["content"]).decode('utf-8'))
-							#json_string = json.loads(json_info ["content"])
 							return_json["apps"][j].update( {"info": json_info})
+
+						#An app was added and the index counter should be increased
 						if readme.ok or info.ok:
 							j += 1
+
 			#setup cache for faster responses
 			self.cached_return_json = return_json
 			return return_json
 		else:
+			print("Serving cached data")
 			return self.cached_return_json
