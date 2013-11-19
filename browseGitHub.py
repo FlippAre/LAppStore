@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import arrow
+import base64
 
 class GitHubConnector:
 
@@ -36,12 +37,14 @@ class GitHubConnector:
 						if readme.ok:
 							json_readme = json.loads(readme.text)
 							return_json["apps"][j].update( {"readme":json_readme["content"]})
-							j += 1
-						info = requests.get("https://api.github.com/repos/lundalogik/limebootstrap/contents/apps/"+appname+"/"+"app.json?ref=master",auth=(self.github_user, self.github_password))
+						info = requests.get("https://api.github.com/repos/lundalogik/limebootstrap/contents/apps/"+appname+"/"+"app.json?ref=master",auth=(self.github_user, self.github_password), headers={"Accept":"application/vnd.github.VERSION.raw"})
 						#Load app.json for a app
 						if info.ok:
 							json_info = json.loads(info.text)
-							return_json["apps"][j].update( {"info":json_info ["content"]})
+							print(json_info)
+							#string = (base64.urlsafe_b64decode(json_info ["content"]).decode('utf-8'))
+							#json_string = json.loads(json_info ["content"])
+							return_json["apps"][j].update( {"info": json_info})
 						if readme.ok or info.ok:
 							j += 1
 			#setup cache for faster responses
