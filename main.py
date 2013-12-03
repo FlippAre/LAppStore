@@ -30,20 +30,22 @@ lappStore = bottle.app()
 
 @lappStore.route('/', method='GET')
 def getAllApps():
-	return connection.getAppsJSON()
+    return connection.getAppsJSON()
 
 @lappStore.route('/app/<app>' , method='GET')
 def getApp(app = ""):
-	apps = connection.getAppsJSON()
-	if app in apps['apps']:
-		return apps['apps'][app]
-	else:
-		return {'error':'App does not exists'}
+    apps = connection.getAppsJSON()
+    print(app)
+    print(apps['apps'])
+    if app in apps['apps']:
+        return apps['apps'][app]
+    else:
+        return {'error':'App does not exists'}
 
 @lappStore.route('/refresh', method='POST')
 def refreshApps():
-	connection.getAppsJSON(True)
-	return {"status":"refresh successfull!"}
+    connection.getAppsJSON(True)
+    return {"status":"refresh successfull!"}
 
 lappStore.install(EnableCors())
 

@@ -48,6 +48,15 @@ class GitHubConnector:
 							json_info = json.loads(info.text)
 							return_json["apps"][j].update( {"info": json_info})
 
+						images = requests.get(self.baseURL+"/contents/"+appname,auth=(self.github_user, self.github_password))
+						if images.ok:
+							json_images = json.loads(images.text)
+							imageFiles = []
+							for k, item in enumerate(json_images):
+								if json_images[k]["type"] == "file":
+									if json_images[k]["name"].rsplit('.',1)[1] in {'jpeg', 'jpg', 'png'}:
+										imageFiles.append("https://raw.github.com/Lundalogik/LimeBootstrapAppStore/master/"+appname+"/"+json_images[k]["name"])	
+							return_json["apps"][j].update({"images":imageFiles})
 						#An app was added and the index counter should be increased
 						if readme.ok or info.ok:
 							j += 1
