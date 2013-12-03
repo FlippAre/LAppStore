@@ -32,7 +32,6 @@ class GitHubConnector:
 				for i, item in enumerate(appDir_json):
 					#Check if it is an app, i.e a directory
 					if appDir_json[i]["type"] == "dir":
-						print("yes")
 						appname = appDir_json[i]["name"]
 						return_json["apps"].append({})
 						return_json["apps"][j].update({"name":appname})
